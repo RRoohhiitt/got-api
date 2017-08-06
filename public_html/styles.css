@@ -1,0 +1,49 @@
+html,
+body {
+  margin: 30px auto;
+  max-width: 800px; }
+
+.dvTitle {
+  margin: 3em 0 1em 0; }
+  .dvTitle h2,
+  .dvTitle h3 {
+    text-align: center; }
+
+.dvAvailableApis {
+  position: fixed;
+  top: 0;
+  margin: 0 auto;
+  display: block;
+  text-align: center;
+  width: 60%; }
+  .dvAvailableApis .dvGetList,
+  .dvAvailableApis .dvCreateList,
+  .dvAvailableApis .dvGetCount,
+  .dvAvailableApis .dvSearch {
+    display: inline-block;
+    border: 1px solid #ef9a9a;
+    padding: 0.5em 1em;
+    background-color: #fff; }
+    .dvAvailableApis .dvGetList:hover,
+    .dvAvailableApis .dvCreateList:hover,
+    .dvAvailableApis .dvGetCount:hover,
+    .dvAvailableApis .dvSearch:hover {
+      border-color: #e53935; }
+    .dvAvailableApis .dvGetList a,
+    .dvAvailableApis .dvCreateList a,
+    .dvAvailableApis .dvGetCount a,
+    .dvAvailableApis .dvSearch a {
+      display: block; }
+      .dvAvailableApis .dvGetList a:hover, .dvAvailableApis .dvGetList a:active, .dvAvailableApis .dvGetList a:focus,
+      .dvAvailableApis .dvCreateList a:hover,
+      .dvAvailableApis .dvCreateList a:active,
+      .dvAvailableApis .dvCreateList a:focus,
+      .dvAvailableApis .dvGetCount a:hover,
+      .dvAvailableApis .dvGetCount a:active,
+      .dvAvailableApis .dvGetCount a:focus,
+      .dvAvailableApis .dvSearch a:hover,
+      .dvAvailableApis .dvSearch a:active,
+      .dvAvailableApis .dvSearch a:focus {
+        text-decoration: none; }
+
+/*# sourceMappingURL=styles.css.map */
