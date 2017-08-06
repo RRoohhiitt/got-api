@@ -92,142 +92,194 @@ exports.get_count = function (req, res) {
 }
 exports.search = function (req, res) {
     let query = req.query;
-    console.log(query);
     let keys = Object.keys(query);
-
-
     if (keys.length > 0) {
         let battle_filter = [];
         let attacker_filter = [];
         let defender_filter = [];
-        Battle.findOne({}, {
+
+        for (let i = 0; i < keys.length; i++) {
+            if ('defender'.includes(keys[i])) {
+                keys[i] = 'defender_king';
+            }
+            if ('attacker'.includes(keys[i])) {
+                keys[i] = 'attacker_king';
+            }
+        }
+
+        let battle_filter_object = {};
+        let attacker_filter_object = {};
+        let defender_filter_object = {};
+        // Battle.findOne({}, {
+        //         _id: 0,
+        //         __v: 0,
+        //         attacker_info: 0,
+        //         defender_info: 0
+        //     })
+        //     .then((data) => {
+        //         let data_keys = Object.keys(JSON.parse(JSON.stringify(data)));
+        //         data_keys.filter((key) => {
+        //             keys.filter(k => {
+        //                 let foundBool = key.includes(k);
+        //                 if (foundBool) {
+        //                     battle_filter_object[key.toLowerCase()] = new RegExp(query[k], 'i');
+
+        //                     if (!isNaN(query[k])) {
+        //                         battle_filter_object[key.toLowerCase()] = parseInt(query[k]);
+        //                     }
+        //                     battle_filter.push(battle_filter_object);
+        //                 }
+        //                 return true;
+        //             });
+        //             return true;
+        //         });
+
+        //         return Attacker.findOne({}, {
+        //             _id: 0,
+        //             __v: 0
+        //         });
+
+        //     })
+        //     .then((data) => {
+        //         if (data) {
+
+        //             let data_keys = Object.keys(JSON.parse(JSON.stringify(data)));
+
+        //             data_keys.filter((key) => {
+        //                 keys.filter(k => {
+        //                     let foundBool = key.includes(k);
+        //                     if (foundBool) {
+        //                         attacker_filter_object[key.toLowerCase()] = new RegExp(query[k], 'i');
+        //                         if (!isNaN(query[k])) {
+        //                             attacker_filter_object[key.toLowerCase()] = parseInt(query[k]);
+        //                         }
+        //                         attacker_filter.push(attacker_filter_object)
+        //                     }
+        //                     return true;
+        //                 });
+        //                 return true;
+        //             });
+        //         }
+        //         return Defender.findOne({}, {
+        //             _id: 0,
+        //             __v: 0
+        //         });
+        //     })
+        //     .then((data) => {
+        //         if (data) {
+        //             let data_keys = Object.keys(JSON.parse(JSON.stringify(data)));
+        //             data_keys.filter((key) => {
+        //                 keys.filter(k => {
+        //                     let foundBool = key.includes(k);
+        //                     if (foundBool) {
+        //                         defender_filter_object[key.toLowerCase()] = new RegExp(query[k], 'i');
+        //                         if (!isNaN(query[k])) {
+        //                             defender_filter_object[key.toLowerCase()] = parseInt(query[k]);
+        //                         }
+        //                         defender_filter.push(attacker_filter_object);
+        //                     }
+        //                     return true;
+        //                 });
+        //                 return true;
+        //             });
+        //         }
+        //         return Promise.resolve(true);
+
+        //     })
+        //     .then((data) => {
+        Battle
+            .findOne({}, {
                 _id: 0,
                 __v: 0,
-                attacker_info: 0,
-                defender_info: 0
             })
+            .populate('attacker_info', '-_id -__v')
+            .populate('defender_info', '-_id -__v')
             .then((data) => {
                 let data_keys = Object.keys(JSON.parse(JSON.stringify(data)));
-                let foundIndex = [];
-                data_keys.filter((key) => {
-                    keys = keys.filter(k => {
-                        let foundBool = key.includes(k);
-
-                        if (foundBool) {
-                            let a = {}
-                            a[key.toLowerCase()] = new RegExp(query[k], 'i')
-                            battle_filter.push(a);
-                            // return false;
-                        }
-                        return true;
-                    });
-                    return true;
-                });
-
-                return Attacker.findOne({}, {
-                    _id: 0,
-                    __v: 0
-                });
-
+                battle_data = _getKeyFormatted(data_keys, keys, query);
+                battle_filter_object = battle_data.filter_obj;
+                battle_filter = battle_data.filter_obj;
+                return data;
             })
             .then((data) => {
+                //Attacker
+                let _attacker_keys = Object.keys(JSON.parse(JSON.stringify(data.attacker_info)));
+                attacker_data = _getKeyFormatted(_attacker_keys, keys, query);
+                attacker_filter_object = attacker_data.filter_obj;
+                attacker_filter = attacker_data.filter_array;
 
-                if (data) {
+                //Defender
+                let _defender_keys = Object.keys(JSON.parse(JSON.stringify(data.defender_info)));
+                defender_data = _getKeyFormatted(_defender_keys, keys, query);
+                defender_filter_object = defender_data.filter_obj;
+                defender_filter = defender_data.filter_array;
 
-                    let data_keys = Object.keys(JSON.parse(JSON.stringify(data)));
-
-                    data_keys.filter((key) => {
-                        keys = keys.filter(k => {
-                            let foundBool = key.includes(k);
-                            if (foundBool) {
-                                let a = {}
-                                a[key.toLowerCase()] = new RegExp(query[k], 'i')
-                                attacker_filter.push(a)
-                                // return true
-                            }
-                            return true;
-                        });
-                        return true;
-                    });
-                }
-                return Defender.findOne({}, {
-                    _id: 0,
-                    __v: 0
-                });
+                return data
             })
-            .then((data) => {
-                if (data) {
-                    let data_keys = Object.keys(JSON.parse(JSON.stringify(data)));
-                    data_keys.filter((key) => {
-                        keys = keys.filter(k => {
-                            let foundBool = key.includes(k);
-                            // console.log(key, k)
-                            if (foundBool) {
-                                let a = {}
-                                a[key.toLowerCase()] = new RegExp(query[k], 'i')
-                                defender_filter.push(a);
-                                // return true
-                            }
-                            return true;
-                        });
-                        return true;
-                    });
-                }
-                return Promise.resolve(true);
 
-            })
+            // })
             .then((data) => {
+
                 if (data) {
                     if (Object.keys(attacker_filter).length > 0 || Object.keys(defender_filter).length > 0 || Object.keys(battle_filter).length > 0) {
                         var attacker_ids = [];
                         var defender_ids = [];
-                        console.log('adsd')
                         if (Object.keys(attacker_filter).length > 0) {
                             if (Object.keys(defender_filter).length > 0) {
-
-                                return Attacker.find({
-                                    $or: attacker_filter
-                                }, {
+                                return Attacker.find(attacker_filter_object, {
                                     _id: 1
                                 }).then((docs) => {
                                     if (docs.length > 0) {
                                         attacker_ids = docs;
+                                        attacker_ids.map((attacker_id) => {
+                                            return attacker_id._id;
+                                        });
+
                                     }
-                                    return Defender.find({
-                                        $or: defender_filter
-                                    }, {
+                                    return Defender.find(defender_filter_object, {
                                         _id: 1
                                     }).then((docs) => {
                                         if (docs.length > 0) {
                                             defender_ids = docs;
+                                            defender_ids.map((defender_id) => {
+                                                return defender_id._id;
+                                            });
                                         }
-
-                                        return Battle.find(battle_filter)
-                                            .populate({
-                                                path: 'attacker_info',
-                                                match: attacker_filter
-                                            })
-                                            .populate({
-                                                path: 'defender_info',
-                                                match: defender_filter
-                                            })
+                                        battle_filter_object.$or = [{
+                                            attacker_info: {
+                                                $in: attacker_ids
+                                            }
+                                        }, {
+                                            defender_info: {
+                                                $in: defender_ids
+                                            }
+                                        }]
+                                        return Battle
+                                            .find(battle_filter_object)
+                                            .populate('attacker_info')
+                                            .populate('defender_info')
                                             .then((data) => {
                                                 return Promise.resolve(data)
                                             })
                                     })
                                 })
                             } else {
-                                return Attacker.find({
-                                    $or: attacker_filter
-                                }, {
+                                return Attacker.find(attacker_filter_object, {
                                     _id: 1
                                 }).then((docs) => {
                                     if (docs.length > 0) {
                                         attacker_ids = docs;
+                                        attacker_ids.map((attacker_id) => {
+                                            return attacker_id._id;
+                                        });
                                     }
-                                    return Battle.find(battle_filter)
+                                    battle_filter_object.attacker_info = {
+                                        $in: attacker_ids
+                                    }
+                                    return Battle
+                                        .find(battle_filter_object)
+                                        .populate('defender_info')
                                         .populate('attacker_info')
-                                        .where('_id').in(attacker_ids)
                                         .then((data) => {
                                             return Promise.resolve(data)
                                         })
@@ -235,39 +287,33 @@ exports.search = function (req, res) {
                             }
                         } else if (Object.keys(defender_filter).length > 0) {
 
-                            return Defender.find({
-                                defender_filter
-                            }, {
+                            return Defender.find(defender_filter_object, {
                                 _id: 1
                             }).then((docs) => {
                                 if (docs.length > 0) {
                                     defender_ids = docs;
+                                    defender_ids.map((defender_id) => {
+                                        return defender_id._id;
+                                    });
                                 }
-
-                                return Battle.find(battle_filter)
-                                    .populate({
-                                        path: 'defender_info'
-                                    })
-                                    .populate({
-                                        path: 'attacker_info'
-                                    })
+                                battle_filter_object.defender_info = {
+                                    $in: defender_ids
+                                }
+                                return Battle
+                                    .find(battle_filter_object)
+                                    .populate('defender_info')
+                                    .populate('attacker_info')
                                     .then((data) => {
                                         return Promise.resolve(data)
                                     })
                             })
-
-
-
                         }
-
                     }
-
                 } else {
                     return Promise.resolve(null);
                 }
             })
             .then((data) => {
-                console.log('asdasda');
                 if (data == null) {
                     res.status(404).end("Invalid Query ! Please check query again");
                 }
@@ -280,6 +326,30 @@ exports.search = function (req, res) {
             })
 
     } else {
-        res.end(400).end('Incomplete Parameters')
+        res.status(400).end('Incomplete Parameter Set')
+    }
+}
+
+function _getKeyFormatted(data_keys, keys, query) {
+    let filter_obj = {};
+    let filter_array = [];
+    data_keys.filter((key) => {
+        keys.filter(k => {
+            let foundBool = key.includes(k);
+            if (foundBool) {
+                filter_obj[key.toLowerCase()] = new RegExp(query[k], 'i');
+                if (!isNaN(query[k])) {
+                    filter_obj[key.toLowerCase()] = parseInt(query[k]);
+                }
+                console.log(filter_obj);
+                filter_array.push(filter_obj);
+            }
+            return true;
+        });
+        return true;
+    });
+    return {
+        filter_obj: filter_obj,
+        filter_array: filter_array
     }
 }

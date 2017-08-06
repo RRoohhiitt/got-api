@@ -57,7 +57,7 @@ $('.dvGetCount a').click(function (event) {
 $('.dvSearch a').click(function (event) {
     event.preventDefault();
     $('#searchQuery').empty();
-    $('#searchQuery').append('<form name="search-form" id="querySubmit"><div class="col-md-8"> <input type="text" value="/search?" class="form-control" id="searchterm"></div><div class="col-sm-2"><input type="submit" onclick="searchQuery()" class=" btn btn-primary"></div></form>');
+    $('#searchQuery').append('<form name="search-form" id="querySubmit"><div class="col-md-8"> <input type="text" value="/search?defender=Robb Stark&battle_type=ambush&region=The Riverlands&major_death=1&year=298" class="form-control" id="searchterm"></div><div class="col-sm-2"><input type="submit" onclick="searchQuery()" class=" btn btn-primary"></div></form>');
 });
 
 function searchQuery() {
@@ -76,7 +76,7 @@ function searchQuery() {
             (response) => {
                 $('#includedContent').empty();
             })
-        .catch((e) => console.log(e.err.responseText));
+        .catch((e) => console.warn(e.err.responseText));
 }
 
 function _makeAjaxRequest(ajaxData) {
