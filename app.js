@@ -26,9 +26,9 @@ app.use(bodyParser.json());
 
 function setupApp() {
     require('./routes/routes')(app);
-    app.listen('80', () => {
+    app.listen(process.env.PORT || '8088', () => {
         if (config.development) {
-            console.log("sevrer started on 80");
+            console.log("sevrer started on 8088");
         }
     });
 
