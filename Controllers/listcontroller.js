@@ -28,29 +28,32 @@ exports.create_list = function (req, res) {
                 return list;
             })
         } else {
-            res.status(409).end("Database is already filled");
-            return;
+            // res.status(409).end("Database is already filled");
+            return Promise.reject({
+                status: 409,
+                error_text: "Database is already filled"
+            });
         }
     });
-    battles.then((list) => {
+    battles = battles.then((list) => {
         if (list) {
             let formatted_list = _getFormattedList(list);
             let promises = [];
             for (let i = 0; i < formatted_list.length; i++) {
                 promises.push(insertToDb(formatted_list[i]));
             }
-            Promise.all(promises).then(() => {
-                    res.status(200).end('Operation Successful');
-                })
-                .catch((e) => {
-                    console.log(e);
-                    res.status(500).end('Internal Server Error');
-                });
+            return Promise.all(promises).then(() => {
+                res.status(200).end('Operation Successful');
+            })
         }
     });
     battles.catch((e) => {
         console.log(e);
-        res.status(500).send('Internal Server Error');
+        if (e.status)
+            res.status(e.status).send(e.error_text);
+        else
+            res.status(500).send('Internal Server Error');
+        res.end();
     });
 
 }

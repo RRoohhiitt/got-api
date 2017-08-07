@@ -96,7 +96,7 @@ exports.stats = function (req, res) {
             res.status(200).send(JSON.stringify(stats));
             res.end();
         }).catch(e => {
-            res.status(400).send(e);
+            res.status(500).send('Internal Server Error');
             res.end();
         })
 }
@@ -117,7 +117,7 @@ exports.search = function (req, res) {
         let battle_filter = [];
         let attacker_filter = [];
         let defender_filter = [];
-        //temp fix
+        //Patch
         for (let i = 0; i < keys.length; i++) {
             if ('defender'.includes(keys[i])) {
                 keys[i] = 'defender_king';
@@ -131,14 +131,12 @@ exports.search = function (req, res) {
                 } else {
                     keys[i] = 'battle_number';
                 }
-
             }
         }
 
         let battle_filter_object = {};
         let attacker_filter_object = {};
         let defender_filter_object = {};
-
         Battle
             .findOne({}, {
                 _id: 0,
@@ -147,6 +145,7 @@ exports.search = function (req, res) {
             .populate('attacker_info', '-_id -__v')
             .populate('defender_info', '-_id -__v')
             .then((data) => {
+                //Battle
                 let data_keys = Object.keys(JSON.parse(JSON.stringify(data)));
                 battle_data = _getKeyFormatted(data_keys, keys, query);
                 battle_filter_object = battle_data.filter_obj;
@@ -169,75 +168,28 @@ exports.search = function (req, res) {
                 return data;
             })
             .then((data) => {
-
                 if (data) {
-                    if (Object.keys(attacker_filter).length > 0 || Object.keys(defender_filter).length > 0 || Object.keys(battle_filter).length > 0) {
-                        var attacker_ids = [];
-                        var defender_ids = [];
-                        if (Object.keys(attacker_filter).length > 0) {
-                            if (Object.keys(defender_filter).length > 0) {
-                                return Attacker.find(attacker_filter_object, {
-                                    _id: 1
-                                }).then((docs) => {
-                                    if (docs.length > 0) {
-                                        attacker_ids = docs;
-                                        attacker_ids.map((attacker_id) => {
-                                            return attacker_id._id;
-                                        });
+                    var attacker_ids = [];
+                    var defender_ids = [];
+                    var promiseObject;
 
-                                    }
-                                    return Defender.find(defender_filter_object, {
-                                        _id: 1
-                                    }).then((docs) => {
-                                        if (docs.length > 0) {
-                                            defender_ids = docs;
-                                            defender_ids.map((defender_id) => {
-                                                return defender_id._id;
-                                            });
-                                        }
-                                        battle_filter_object.$or = [{
-                                            attacker_info: {
-                                                $in: attacker_ids
-                                            }
-                                        }, {
-                                            defender_info: {
-                                                $in: defender_ids
-                                            }
-                                        }]
-                                        return Battle
-                                            .find(battle_filter_object)
-                                            .populate('attacker_info')
-                                            .populate('defender_info')
-                                            .then((data) => {
-                                                return Promise.resolve(data)
-                                            })
-                                    })
-                                })
-                            } else {
-                                return Attacker.find(attacker_filter_object, {
-                                    _id: 1
-                                }).then((docs) => {
-                                    if (docs.length > 0) {
-                                        attacker_ids = docs;
-                                        attacker_ids.map((attacker_id) => {
-                                            return attacker_id._id;
-                                        });
-                                    }
-                                    battle_filter_object.attacker_info = {
-                                        $in: attacker_ids
-                                    }
-                                    return Battle
-                                        .find(battle_filter_object)
-                                        .populate('defender_info')
-                                        .populate('attacker_info')
-                                        .then((data) => {
-                                            return Promise.resolve(data)
-                                        })
-                                })
+
+                    if (Object.keys(attacker_filter).length > 0) {
+                        promiseObject = Attacker.find(attacker_filter_object, {
+                            _id: 1
+                        }).then((docs) => {
+                            if (docs.length > 0) {
+                                attacker_ids = docs;
+                                attacker_ids.map((attacker_id) => {
+                                    return attacker_id._id;
+                                });
                             }
-                        } else if (Object.keys(defender_filter).length > 0) {
-
-                            return Defender.find(defender_filter_object, {
+                            return docs;
+                        })
+                    }
+                    if (Object.keys(defender_filter).length > 0) {
+                        promiseObject = promiseObject.then((data) => {
+                            Defender.find(defender_filter_object, {
                                 _id: 1
                             }).then((docs) => {
                                 if (docs.length > 0) {
@@ -249,30 +201,38 @@ exports.search = function (req, res) {
                                 battle_filter_object.defender_info = {
                                     $in: defender_ids
                                 }
-                                return Battle
-                                    .find(battle_filter_object)
-                                    .populate('defender_info')
-                                    .populate('attacker_info')
-                                    .then((data) => {
-                                        return Promise.resolve(data)
-                                    })
+                                return docs;
                             })
-                        }
+                        })
                     }
+                    promiseObject = promiseObject.then((data) => {
+
+                        return Battle
+                            .find(battle_filter_object)
+                            .populate('defender_info')
+                            .populate('attacker_info')
+                            .then((data) => {
+                                return data;
+                            });
+                    })
+                    return promiseObject;
                 } else {
-                    return Promise.resolve(null);
+                    return Promise.reject({
+                        status: 404,
+                        error_text: "Invalid Query ! Please check query again"
+                    });
                 }
             })
             .then((data) => {
-                if (data == null) {
-                    res.status(404).end("Invalid Query ! Please check query again");
-                }
                 res.status(200).end(JSON.stringify(data));
 
             })
             .catch((e) => {
                 console.log(e);
-                res.status(500).end("Internal Server Error")
+                if (e.status)
+                    res.status(404).end(e.error_text);
+                else
+                    res.status(500).end("Internal Server Error")
             })
 
     } else {
