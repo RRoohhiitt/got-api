@@ -117,13 +117,21 @@ exports.search = function (req, res) {
         let battle_filter = [];
         let attacker_filter = [];
         let defender_filter = [];
-
+        //temp fix
         for (let i = 0; i < keys.length; i++) {
             if ('defender'.includes(keys[i])) {
                 keys[i] = 'defender_king';
             }
             if ('attacker'.includes(keys[i])) {
                 keys[i] = 'attacker_king';
+            }
+            if ('battle_'.includes(keys[i])) {
+                if (isNaN(query[keys[i]])) {
+                    keys[i] = 'battle_type';
+                } else {
+                    keys[i] = 'battle_number';
+                }
+
             }
         }
 
