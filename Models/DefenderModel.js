@@ -4,7 +4,10 @@ const Schema = mongoose.Schema;
 let Defender = new Schema({
     defender_king: String,
     defender_commander: String,
-    defender_size: String,
+    defender_size: {
+        type: Number,
+        default: 0
+    },
     defender_1: {
         type: String
     },

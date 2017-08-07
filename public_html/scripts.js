@@ -11,6 +11,7 @@ $('.dvGetList a').click(function (event) {
         .then(
             (response) => {
                 if (response.status == 'success' && response.data.length > 0) {
+                    $('#searchQuery').empty();
                     $('#includedContent').empty();
                     $('#includedContent').append('<h4>List of places where battles took place</h4>')
                     for (let i = 0; i < response.data.length; i++) {
@@ -24,6 +25,7 @@ $('.dvGetList a').click(function (event) {
 $('.dvCreateList a').click(function (event) {
     event.preventDefault();
     $('#includedContent').empty();
+    $('#searchQuery').empty();
     let ajax = {
         url: '/createlist',
         settings: {
@@ -33,13 +35,34 @@ $('.dvCreateList a').click(function (event) {
     _makeAjaxRequest(ajax)
         .then(
             (response) => {
+                console.log(response);
 
             })
         .catch((e) => alert(e.err.responseText));
 });
+$('.dvStats a').click(function () {
+    event.preventDefault();
+    $('#searchQuery').empty();
+    $('#includedContent').empty();
+    let ajax = {
+        url: '/stats',
+        settings: {
+            method: 'GET'
+        }
+    }
+    _makeAjaxRequest(ajax)
+        .then(
+            (response) => {
+                $('#includedContent').append('<h3>Stats<h3>');
+                $('#includedContent').append('<p>' + response.data + '</p>');
+            })
+        .catch((e) => alert(e.err.responseText));
+})
 
 $('.dvGetCount a').click(function (event) {
     event.preventDefault();
+    $('#searchQuery').empty();
+    $('#includedContent').empty();
     let ajax = {
         url: '/getcount',
         settings: {
@@ -49,19 +72,20 @@ $('.dvGetCount a').click(function (event) {
     _makeAjaxRequest(ajax)
         .then(
             (response) => {
-                $('#includedContent').empty();
                 $('#includedContent').append('<h4>Total Battles Occured : ' + JSON.parse(response.data).count + '</h4>', )
             })
         .catch((e) => alert(e.err.responseText));
 });
 $('.dvSearch a').click(function (event) {
     event.preventDefault();
+    $('#includedContent').empty();
     $('#searchQuery').empty();
-    $('#searchQuery').append('<form name="search-form" id="querySubmit"><div class="col-md-8"> <input type="text" value="/search?defender=Robb Stark&battle_type=ambush&region=The Riverlands&major_death=1&year=298" class="form-control" id="searchterm"></div><div class="col-sm-2"><input type="submit" onclick="searchQuery()" class=" btn btn-primary"></div></form>');
+    $('#searchQuery').append('<form name="search-form" id="querySubmit"><div class="col-md-8"> <input type="text" value="/search?king=Robb Stark&battle_type=ambush&region=The Riverlands&major_death=1" class="form-control" id="searchterm"></div><div class="col-sm-2"><input type="submit" onclick="searchQuery()" class=" btn btn-primary"></div></form>');
 });
 
 function searchQuery() {
     event.preventDefault();
+    $('#includedContent').empty();
     searchparams = $('#searchterm').val();
     searchparams = searchparams.split('?').pop();
     let ajax = {
@@ -75,6 +99,7 @@ function searchQuery() {
         .then(
             (response) => {
                 $('#includedContent').empty();
+                $('#includedContent').html('<code>' + response.data + '</code>');
             })
         .catch((e) => console.warn(e.err.responseText));
 }

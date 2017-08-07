@@ -80,6 +80,7 @@ function _getFormattedList(list) {
         attacker_info.attacker_2 = list[i].attacker_2;
         attacker_info.attacker_3 = list[i].attacker_3;
         attacker_info.attacker_4 = list[i].attacker_4;
+        attacker_info.attacker_size = list[i].attacker_size;
 
         attacker_info.size = list[i].size;
         defender_info.defender_king = list[i].defender_king;
@@ -88,6 +89,7 @@ function _getFormattedList(list) {
         defender_info.defender_2 = list[i].defender_2;
         defender_info.defender_3 = list[i].defender_3;
         defender_info.defender_4 = list[i].defender_4;
+        defender_info.defender_size = list[i].defender_size;
 
         formatted_list[i].name = list[i].name;
         formatted_list[i].year = list[i].year;

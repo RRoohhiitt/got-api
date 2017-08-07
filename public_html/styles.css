@@ -19,7 +19,8 @@ body {
   .dvAvailableApis .dvGetList,
   .dvAvailableApis .dvCreateList,
   .dvAvailableApis .dvGetCount,
-  .dvAvailableApis .dvSearch {
+  .dvAvailableApis .dvSearch,
+  .dvAvailableApis .dvStats {
     display: inline-block;
     border: 1px solid #ef9a9a;
     padding: 0.5em 1em;
@@ -27,12 +28,14 @@ body {
     .dvAvailableApis .dvGetList:hover,
     .dvAvailableApis .dvCreateList:hover,
     .dvAvailableApis .dvGetCount:hover,
-    .dvAvailableApis .dvSearch:hover {
+    .dvAvailableApis .dvSearch:hover,
+    .dvAvailableApis .dvStats:hover {
       border-color: #e53935; }
     .dvAvailableApis .dvGetList a,
     .dvAvailableApis .dvCreateList a,
     .dvAvailableApis .dvGetCount a,
-    .dvAvailableApis .dvSearch a {
+    .dvAvailableApis .dvSearch a,
+    .dvAvailableApis .dvStats a {
       display: block; }
       .dvAvailableApis .dvGetList a:hover, .dvAvailableApis .dvGetList a:active, .dvAvailableApis .dvGetList a:focus,
       .dvAvailableApis .dvCreateList a:hover,
@@ -43,7 +46,10 @@ body {
       .dvAvailableApis .dvGetCount a:focus,
       .dvAvailableApis .dvSearch a:hover,
       .dvAvailableApis .dvSearch a:active,
-      .dvAvailableApis .dvSearch a:focus {
+      .dvAvailableApis .dvSearch a:focus,
+      .dvAvailableApis .dvStats a:hover,
+      .dvAvailableApis .dvStats a:active,
+      .dvAvailableApis .dvStats a:focus {
         text-decoration: none; }
 
 /*# sourceMappingURL=styles.css.map */

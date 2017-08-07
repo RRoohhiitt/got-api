@@ -2,15 +2,13 @@ const Attacker = require('../Models/AttackerModel');
 const Defender = require('../Models/DefenderModel');
 const Battle = require('../Models/BattleModel');
 exports.stats = function (req, res) {
-    var allData = {};
+    let stats = {}
     Battle.aggregate(
             [{
                 '$group': {
-                    '_id': {
-                        'battle_type': "$battle_type"
-                    },
+                    '_id': null,
 
-                    totalwins: {
+                    totalwsins: {
                         $sum: {
                             $cond: {
                                 if: {
@@ -32,48 +30,70 @@ exports.stats = function (req, res) {
                             }
                         }
                     },
-                    count: {
-                        $sum: 1
-                    },
+                    battle_type: {
+                        $addToSet: '$battle_type'
+                    }
 
-                },
+                }
             }])
         .then((data) => {
-            allData.battle = data;
+            stats.battle_type = [];
+            stats.attacker_outcome = {};
+            stats.attacker_outcome.wins = data[0].totalwsins;
+            stats.attacker_outcome.losses = data[0].totalloss;
+            stats.battle_type = data[0].battle_type;
 
             return Attacker.aggregate([{
                 '$group': {
-                    '_id': '$attacker_king'
+                    '_id': '$attacker_king',
+                    count: {
+                        $sum: 1
+                    }
                 }
             }])
 
         })
         .then((data) => {
-            console.log(allData);
-            allData.attacker = data;
+            stats.most_active = {};
+            stats.most_active.attacker_king = data[0];
+            let max_count = data[0].count;
+            for (let i = 0; i < data.length; i++) {
+                stats.most_active.attacker_king = max_count < data[i].count ? data[i]._id : stats.most_active.attacker_king;
+            }
             return Defender.aggregate([{
                 '$group': {
                     '_id': '$defender_king',
-                    itemsSold: {
-                        $addToSet: "$defender_king"
+                    'average': {
+                        $avg: '$defender_size'
                     },
-                    active_for: {
-                        $max: {
-                            $cond: {
-                                if: {
-                                    $eq: []
-                                },
-                                then: 1,
-                                else: 0
-                            }
-                        }
+                    'min': {
+                        $min: '$defender_size'
+                    },
+                    'max': {
+                        $max: '$defender_size'
+                    },
+                    count: {
+                        $sum: 1
                     }
                 }
             }])
         })
         .then((data) => {
-            allData.defender = data;
-            res.status(200).send(allData);
+            stats.most_active.defender_king = data[0];
+            let max_count = data[0].count;
+            stats.defender_size = {};
+            stats.defender_size.average = 0;
+            stats.defender_size.min = 0;
+            stats.defender_size.max = 0;
+            for (let i = 0; i < data.length; i++) {
+                let min = data[i].min;
+                let max = data[i].max;
+                stats.most_active.defender_king = max_count < data[i].count ? data[i]._id : stats.most_active.defender_king;
+                stats.defender_size.average += (min + max) / 2;
+                stats.defender_size.min = min > data[i].min ? data[i].min : min;
+                stats.defender_size.max = max < data[i].max ? data[i].max : max;
+            }
+            res.status(200).send(JSON.stringify(stats));
             res.end();
         }).catch(e => {
             res.status(400).send(e);
@@ -110,83 +130,7 @@ exports.search = function (req, res) {
         let battle_filter_object = {};
         let attacker_filter_object = {};
         let defender_filter_object = {};
-        // Battle.findOne({}, {
-        //         _id: 0,
-        //         __v: 0,
-        //         attacker_info: 0,
-        //         defender_info: 0
-        //     })
-        //     .then((data) => {
-        //         let data_keys = Object.keys(JSON.parse(JSON.stringify(data)));
-        //         data_keys.filter((key) => {
-        //             keys.filter(k => {
-        //                 let foundBool = key.includes(k);
-        //                 if (foundBool) {
-        //                     battle_filter_object[key.toLowerCase()] = new RegExp(query[k], 'i');
 
-        //                     if (!isNaN(query[k])) {
-        //                         battle_filter_object[key.toLowerCase()] = parseInt(query[k]);
-        //                     }
-        //                     battle_filter.push(battle_filter_object);
-        //                 }
-        //                 return true;
-        //             });
-        //             return true;
-        //         });
-
-        //         return Attacker.findOne({}, {
-        //             _id: 0,
-        //             __v: 0
-        //         });
-
-        //     })
-        //     .then((data) => {
-        //         if (data) {
-
-        //             let data_keys = Object.keys(JSON.parse(JSON.stringify(data)));
-
-        //             data_keys.filter((key) => {
-        //                 keys.filter(k => {
-        //                     let foundBool = key.includes(k);
-        //                     if (foundBool) {
-        //                         attacker_filter_object[key.toLowerCase()] = new RegExp(query[k], 'i');
-        //                         if (!isNaN(query[k])) {
-        //                             attacker_filter_object[key.toLowerCase()] = parseInt(query[k]);
-        //                         }
-        //                         attacker_filter.push(attacker_filter_object)
-        //                     }
-        //                     return true;
-        //                 });
-        //                 return true;
-        //             });
-        //         }
-        //         return Defender.findOne({}, {
-        //             _id: 0,
-        //             __v: 0
-        //         });
-        //     })
-        //     .then((data) => {
-        //         if (data) {
-        //             let data_keys = Object.keys(JSON.parse(JSON.stringify(data)));
-        //             data_keys.filter((key) => {
-        //                 keys.filter(k => {
-        //                     let foundBool = key.includes(k);
-        //                     if (foundBool) {
-        //                         defender_filter_object[key.toLowerCase()] = new RegExp(query[k], 'i');
-        //                         if (!isNaN(query[k])) {
-        //                             defender_filter_object[key.toLowerCase()] = parseInt(query[k]);
-        //                         }
-        //                         defender_filter.push(attacker_filter_object);
-        //                     }
-        //                     return true;
-        //                 });
-        //                 return true;
-        //             });
-        //         }
-        //         return Promise.resolve(true);
-
-        //     })
-        //     .then((data) => {
         Battle
             .findOne({}, {
                 _id: 0,
@@ -214,10 +158,8 @@ exports.search = function (req, res) {
                 defender_filter_object = defender_data.filter_obj;
                 defender_filter = defender_data.filter_array;
 
-                return data
+                return data;
             })
-
-            // })
             .then((data) => {
 
                 if (data) {
@@ -341,7 +283,6 @@ function _getKeyFormatted(data_keys, keys, query) {
                 if (!isNaN(query[k])) {
                     filter_obj[key.toLowerCase()] = parseInt(query[k]);
                 }
-                console.log(filter_obj);
                 filter_array.push(filter_obj);
             }
             return true;

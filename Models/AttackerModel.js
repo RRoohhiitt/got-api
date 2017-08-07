@@ -4,7 +4,10 @@ const Schema = mongoose.Schema;
 let Attacker = new Schema({
     attacker_king: String,
     attacker_commander: String,
-    attacker_size: String,
+    attacker_size: {
+        type: Number,
+        default: 0
+    },
     attacker_1: {
         type: String
     },
