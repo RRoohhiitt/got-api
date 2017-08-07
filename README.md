@@ -17,14 +17,18 @@ GET /search?your_q=your_data  API   Matches provided keys  with keys from databa
 
 @params- /search?{king=Robb Stark || defender=Robb Stark || defe=Robb Stark}&battle_ty=ambush&region=The Riverlands&major_death=1
 
+
 GET /createlist API
 Adds entries to database for once using the file "mock-battles.json".  
+
 
 GET /list API
 returns list(array) of all the places where battle has taken place.
 
+
 GET /getcount API
 Give total number of battles
+
 
 GET /stats API
 Gives Stats
