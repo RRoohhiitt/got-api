@@ -1,7 +1,7 @@
 const Attacker = require('../Models/AttackerModel');
 const Defender = require('../Models/DefenderModel');
 const Battle = require('../Models/BattleModel');
-exports.stats = function (req, res) {
+exports.stats = function(req, res) {
     let stats = {}
     Battle.aggregate(
             [{
@@ -54,11 +54,15 @@ exports.stats = function (req, res) {
 
         })
         .then((data) => {
+
             stats.most_active = {};
             stats.most_active.attacker_king = data[0];
             let max_count = data[0].count;
             for (let i = 0; i < data.length; i++) {
-                stats.most_active.attacker_king = max_count < data[i].count ? data[i]._id : stats.most_active.attacker_king;
+                if (max_count < data[i].count) {
+                    stats.most_active.attacker_king = data[i]._id;
+                    max_count = data[i]._id;
+                }
             }
             return Defender.aggregate([{
                 '$group': {
@@ -88,7 +92,10 @@ exports.stats = function (req, res) {
             for (let i = 0; i < data.length; i++) {
                 let min = data[i].min;
                 let max = data[i].max;
-                stats.most_active.defender_king = max_count < data[i].count ? data[i]._id : stats.most_active.defender_king;
+                if (max_count < data[i].count) {
+                    stats.most_active.defender_king = data[i]._id;
+                    max_count = data[i]._id;
+                }
                 stats.defender_size.average += (min + max) / 2;
                 stats.defender_size.min = min > data[i].min ? data[i].min : min;
                 stats.defender_size.max = max < data[i].max ? data[i].max : max;
@@ -96,11 +103,12 @@ exports.stats = function (req, res) {
             res.status(200).send(JSON.stringify(stats));
             res.end();
         }).catch(e => {
+            console.log(e);
             res.status(500).send('Internal Server Error');
             res.end();
         })
 }
-exports.get_count = function (req, res) {
+exports.get_count = function(req, res) {
     Battle.count({}).then((count) => {
         res.status(200).end(JSON.stringify({
             count: count
@@ -110,7 +118,7 @@ exports.get_count = function (req, res) {
         res.status(500).end("Internal Server Error");
     });
 }
-exports.search = function (req, res) {
+exports.search = function(req, res) {
     let query = req.query;
     let keys = Object.keys(query);
     if (keys.length > 0) {
