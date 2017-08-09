@@ -10,10 +10,9 @@ mongoose.Promise = global.Promise;
 let promise = mongoose.connect(config.db, {
     useMongoClient: true
 })
+console.log(config.db);
 promise = promise.then((db) => {
-    if (config.development) {
-        console.log("mongo connection started on : ", config.db)
-    }
+    console.log("mongo connection started on : ", config.db)
     setupApp();
 })
 promise.catch(e => {
@@ -25,9 +24,7 @@ app.use(bodyParser.json());
 function setupApp() {
     require('./routes/routes')(app);
     app.listen(process.env.PORT || '8088', () => {
-        if (config.development) {
-            console.log("sevrer started on 8088");
-        }
+        console.log("sevrer started on 8088");
     });
 
 }

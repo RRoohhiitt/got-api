@@ -177,9 +177,10 @@ exports.search = function(req, res) {
             })
             .then((data) => {
                 if (data) {
-                    var attacker_ids = [];
-                    var defender_ids = [];
-                    var promiseObject;
+                    let attacker_ids = [];
+                    let defender_ids = [];
+
+                    let promiseObject = Promise.resolve(true);;
 
 
                     if (Object.keys(attacker_filter).length > 0) {
@@ -193,11 +194,11 @@ exports.search = function(req, res) {
                                 });
                             }
                             return docs;
-                        })
+                        });
                     }
                     if (Object.keys(defender_filter).length > 0) {
                         promiseObject = promiseObject.then((data) => {
-                            Defender.find(defender_filter_object, {
+                            return Defender.find(defender_filter_object, {
                                 _id: 1
                             }).then((docs) => {
                                 if (docs.length > 0) {
@@ -208,13 +209,12 @@ exports.search = function(req, res) {
                                 }
                                 battle_filter_object.defender_info = {
                                     $in: defender_ids
-                                }
+                                };
                                 return docs;
-                            })
-                        })
+                            });
+                        });
                     }
                     promiseObject = promiseObject.then((data) => {
-
                         return Battle
                             .find(battle_filter_object)
                             .populate('defender_info')
