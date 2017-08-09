@@ -7,6 +7,12 @@ npm start
 
 http://localhost:8088/
 
+DEMO - 
+
+http://got-api.eu-4.evennode.com/
+(valid till 6-May-17)
+
+
 Try these apis through ui provided.
 
 Or
