@@ -57,11 +57,12 @@ exports.stats = function(req, res) {
 
             stats.most_active = {};
             stats.most_active.attacker_king = data[0];
+            console.log(data);
             let max_count = data[0].count;
             for (let i = 0; i < data.length; i++) {
                 if (max_count < data[i].count) {
                     stats.most_active.attacker_king = data[i]._id;
-                    max_count = data[i]._id;
+                    max_count = data[i].count;
                 }
             }
             return Defender.aggregate([{
@@ -94,7 +95,7 @@ exports.stats = function(req, res) {
                 let max = data[i].max;
                 if (max_count < data[i].count) {
                     stats.most_active.defender_king = data[i]._id;
-                    max_count = data[i]._id;
+                    max_count = data[i].count;
                 }
                 stats.defender_size.average += (min + max) / 2;
                 stats.defender_size.min = min > data[i].min ? data[i].min : min;
